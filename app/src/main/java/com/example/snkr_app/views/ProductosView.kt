@@ -1,34 +1,34 @@
 package com.example.snkr_app.views
 
-import androidx.compose.foundation.clickable
+import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
+import com.example.snkr_app.R.drawable.zap
+import com.example.snkr_app.data.models.Zapatilla
+import com.example.snkr_app.data.repositories.ZapatillaRepository
 import com.example.snkr_app.navigation.Route
 import com.example.snkr_app.viewmodels.ProductosViewModel
 import kotlinx.coroutines.launch
 
-/**
- * CLASE 2: Flujo y Navegación
- * - Lista con navegación a Detalle con argumento (id).
- * - Uso de NavController.navigate con launchSingleTop y popUpTo.
- * - Snackbar para feedback al tocar un ítem.
- */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ProductosView(
     navController: NavController,
     vm: ProductosViewModel = viewModel()
 ) {
-    val items = vm.items.collectAsState().value
+    val zapatillas = ZapatillaRepository.getZapatillas().collectAsState().value
     val snackbarHostState = remember { SnackbarHostState() }
     val scope = rememberCoroutineScope()
 
@@ -39,68 +39,96 @@ fun ProductosView(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(padding)
+                .verticalScroll(rememberScrollState())
                 .padding(16.dp)
         ) {
             Text(
-                "Navegación: Lista → Detalle",
+                "Todos los modelos",
                 style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold)
             )
             Spacer(Modifier.height(8.dp))
             Text(
-                "Toca un elemento para navegar con argumento. Observa cómo vuelve con Back.",
+                "Explora nuestra colección completa de zapatillas",
                 style = MaterialTheme.typography.bodyMedium
             )
             Spacer(Modifier.height(16.dp))
 
-            LazyColumn(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                itemsIndexed(items) { index, item ->
-                    ElevatedCard(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .clickable {
+            // Mostrar productos en tarjetas: 2 por fila
+            val rows = remember(zapatillas) { zapatillas.chunked(2) }
+            rows.forEachIndexed { rowIndex, rowList ->
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(vertical = 6.dp),
+                    horizontalArrangement = Arrangement.spacedBy(12.dp)
+                ) {
+                    rowList.forEachIndexed { colIndex, product ->
+                        val productIndex = rowIndex * 2 + colIndex
+                        ProductCard(
+                            product = product,
+                            modifier = Modifier.weight(1f),
+                            onVerMas = {
                                 scope.launch {
-                                    snackbarHostState.showSnackbar("Abriendo detalle de $item")
+                                    snackbarHostState.showSnackbar("Abriendo detalle de ${product.nombre}")
                                 }
-                                navController.navigate(Route.ProductosDetail.build(id = (index + 1).toString())) {
+                                navController.navigate(Route.ProductosDetail.build(id = product.id)) {
                                     launchSingleTop = true
-                                    // Ejemplo de control de back stack:
                                     popUpTo(Route.Productos.route) { inclusive = false }
                                 }
                             }
-                    ) {
-                        Row(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(16.dp),
-                            verticalAlignment = Alignment.CenterVertically
-                        ) {
-                            Text(item, style = MaterialTheme.typography.titleMedium)
-                            Spacer(Modifier.weight(1f))
-                            Text("Ver detalle", style = MaterialTheme.typography.labelLarge)
-                        }
+                        )
                     }
+                    // si la fila tiene 1 item, agregamos un spacer para balancear
+                    if (rowList.size == 1) Spacer(modifier = Modifier.weight(1f))
                 }
             }
         }
     }
 }
 
-/**
- * Pantalla de Detalle para la navegación con argumento
- */
 @Composable
-fun ProductosDetailView(
-    id: String,
-    onBack: () -> Unit
+private fun ProductCard(
+    product: Zapatilla,
+    modifier: Modifier = Modifier,
+    onVerMas: () -> Unit
 ) {
-    Column(
-        modifier = Modifier.fillMaxSize().padding(24.dp),
-        verticalArrangement = Arrangement.spacedBy(16.dp),
-        horizontalAlignment = Alignment.CenterHorizontally
+    Card(
+        modifier = modifier,
+        shape = RoundedCornerShape(12.dp),
+        elevation = CardDefaults.cardElevation(defaultElevation = 6.dp)
     ) {
-        Text("Detalle", style = MaterialTheme.typography.headlineSmall, fontWeight = FontWeight.Bold)
-        Text("ID recibido en la ruta: $id", style = MaterialTheme.typography.bodyLarge)
-        Button(onClick = onBack) { Text("Volver") }
+        Column(
+            modifier = Modifier
+                .padding(12.dp)
+        ) {
+            Image(
+                painter = painterResource(zap),
+                contentDescription = product.nombre,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(140.dp)
+                    .background(
+                        color = MaterialTheme.colorScheme.surfaceVariant,
+                        shape = RoundedCornerShape(8.dp)
+                    )
+            )
+
+            Spacer(modifier = Modifier.height(10.dp))
+
+            Text(text = product.nombre, fontWeight = FontWeight.SemiBold)
+            Spacer(modifier = Modifier.height(4.dp))
+            Text(text = product.precio, style = MaterialTheme.typography.bodyMedium)
+
+            Spacer(modifier = Modifier.height(8.dp))
+
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.End
+            ) {
+                TextButton(onClick = onVerMas) {
+                    Text("Ver más")
+                }
+            }
+        }
     }
 }
-
