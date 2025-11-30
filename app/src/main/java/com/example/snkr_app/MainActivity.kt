@@ -10,6 +10,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.example.snkr_app.navigation.Route
 import com.example.snkr_app.views.MenuShellView
+import com.example.snkr_app.views.RegisterView
 import com.example.snkr_app.views.WelcomeView
 
 class MainActivity : ComponentActivity() {
@@ -24,12 +25,19 @@ class MainActivity : ComponentActivity() {
                 ) {
                     composable(Route.Welcome.route) {
                         WelcomeView(
-                            onStartClick = { navController.navigate(Route.MenuShell.route) }
+                            onNavigateHome = { navController.navigate(Route.MenuShell.route) },
+                            onNavigateRegister = { navController.navigate(Route.Register.route) } // 👈 aquí
+                        )
+                    }
+                    composable(Route.Register.route) {
+                        RegisterView(
+                            onRegisterSuccess = { navController.navigate(Route.MenuShell.route) },
+                            onBack = { navController.popBackStack() }
                         )
                     }
                     // MenuShell incluye su propio NavHost interno para Option1/2/3
                     composable(Route.MenuShell.route) {
-                        MenuShellView()
+                        MenuShellView(navController)
                     }
                 }
             }

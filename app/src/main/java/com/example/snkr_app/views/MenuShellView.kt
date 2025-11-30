@@ -17,7 +17,9 @@ import com.example.snkr_app.data.repositories.ZapatillaRepository
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun MenuShellView() {
+fun MenuShellView(
+    appNavController: NavHostController // 👈 usa el mismo NavController de tu AppNavHost
+) {
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
     val scope = rememberCoroutineScope()
     val innerNavController = rememberNavController()
@@ -88,6 +90,22 @@ fun MenuShellView() {
                         scope.launch { drawerState.close() }
                     }
                 )
+
+                // 👇 Nuevo botón de cerrar sesión
+                NavigationDrawerItem(
+                    label = { Text("Cerrar sesión") },
+                    selected = false,
+                    onClick = {
+                        appNavController.navigate(Route.Welcome.route) {
+                            // Limpia el backstack para que no se pueda volver atrás
+                            popUpTo(appNavController.graph.startDestinationId) {
+                                inclusive = true
+                            }
+                            launchSingleTop = true
+                        }
+                        scope.launch { drawerState.close() }
+                    }
+                )
             }
         }
     ) {
@@ -124,7 +142,7 @@ fun MenuShellView() {
                     })
                 }
                 composable(
-                    route = Route.ProductosDetail.route,  // "productos/detail/{id}"
+                    route = Route.ProductosDetail.route,
                     arguments = listOf(
                         navArgument("id") { type = NavType.StringType }
                     )

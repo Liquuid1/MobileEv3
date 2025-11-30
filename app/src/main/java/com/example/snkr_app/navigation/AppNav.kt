@@ -4,6 +4,8 @@ sealed class Route(val route: String) {
     data object Welcome : Route("welcome")
     data object MenuShell : Route("menu_shell") // contenedor con drawer
     data object Home : Route("home")
+
+    data object Register : Route("register")
     data object Productos : Route("productos")
     data object Newsletter : Route("newsletter")
 
