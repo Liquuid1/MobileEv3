@@ -13,6 +13,7 @@ import com.example.snkr_app.navigation.Route
 import kotlinx.coroutines.launch
 import androidx.navigation.NavType
 import androidx.navigation.navArgument
+import com.example.snkr_app.data.repositories.ZapatillaRepository
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -128,12 +129,11 @@ fun MenuShellView() {
                         navArgument("id") { type = NavType.StringType }
                     )
                 ) { backStackEntry ->
-                    val id = backStackEntry.arguments?.getString("id") ?: "N/A"
-
-                    ProductosDetailView(
-                        id = id,
-                        onBack = { innerNavController.popBackStack() }
-                    )
+                    val id = backStackEntry.arguments?.getString("id")
+                    val zapatilla = ZapatillaRepository.getZapatillas().collectAsState().value.find { it.id == id }
+                    if (zapatilla != null) {
+                        VistaDetalleProducto(zapatilla = zapatilla, onAddToCart = { /* TODO */ })
+                    }
                 }
                 composable(Route.AdminPanel.route) { AdminPanelView(navController = innerNavController) }
             }
