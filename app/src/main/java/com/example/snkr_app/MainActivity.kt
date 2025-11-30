@@ -35,6 +35,7 @@ class MainActivity : ComponentActivity() {
                             onBack = { navController.popBackStack() }
                         )
                     }
+                    // MenuShell incluye su propio NavHost interno para Option1/2/3
                     composable(Route.MenuShell.route) {
                         MenuShellView(navController)
                     }

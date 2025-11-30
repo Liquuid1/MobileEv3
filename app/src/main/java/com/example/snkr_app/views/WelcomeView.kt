@@ -22,13 +22,6 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.snkr_app.viewmodels.WelcomeViewModel
 import com.example.snkr_app.R
-import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.fadeIn
-import androidx.compose.animation.fadeOut
-import androidx.compose.ui.platform.LocalContext
-import androidx.lifecycle.ViewModel
-import com.example.snkr_app.auth.repository.LoginRepository
-import kotlinx.coroutines.delay
 
 @Composable
 fun WelcomeView(
@@ -84,6 +77,8 @@ fun WelcomeView(
             verticalArrangement = Arrangement.Center,
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
+
+            // Logo o imagen principal
             Image(
                 painter = painterResource(id = R.drawable.logo),
                 contentDescription = "SNKRHOOD Logo",
@@ -93,6 +88,7 @@ fun WelcomeView(
                 contentScale = ContentScale.Fit
             )
 
+            // Título principal
             Text(
                 text = titulo,
                 color = Color.White,
@@ -134,6 +130,7 @@ fun WelcomeView(
 
             Spacer(modifier = Modifier.height(32.dp))
 
+            // Botón de inicio
             Button(
                 onClick = { vm.login(email, password) },
                 shape = RoundedCornerShape(12.dp),
@@ -184,6 +181,7 @@ fun WelcomeView(
 
             Spacer(modifier = Modifier.height(20.dp))
 
+            // Texto pequeño tipo lema
             Text(
                 text = "🔥 Streetwear, cultura y estilo en un solo lugar.",
                 color = Color(0xFF888888),

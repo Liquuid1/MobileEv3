@@ -65,6 +65,7 @@ fun MenuShellView(
                         scope.launch { drawerState.close() }
                     }
                 )
+
                 NavigationDrawerItem(
                     label = { Text("Sube tu zapatilla") },
                     selected = currentInnerRoute(innerNavController) == Route.AddZapatilla.route,
@@ -76,12 +77,13 @@ fun MenuShellView(
                         scope.launch { drawerState.close() }
                     }
                 )
+
                 NavigationDrawerItem(
-                    label = { Text("Admin Panel") },
+                    label = { Text("Admin Panel")},
                     selected = currentInnerRoute(innerNavController) == Route.AdminPanel.route,
                     onClick = {
                         innerNavController.navigate(Route.AdminPanel.route) {
-                            popUpTo(Route.Home.route) { inclusive = false }
+                            popUpTo(Route.Home.route) { inclusive = false}
                             launchSingleTop = true
                         }
                         scope.launch { drawerState.close() }
