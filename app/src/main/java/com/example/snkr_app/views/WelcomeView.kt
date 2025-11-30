@@ -1,6 +1,9 @@
 package com.example.snkr_app.views
 
 import android.util.Log
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
@@ -22,6 +25,7 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.snkr_app.viewmodels.WelcomeViewModel
 import com.example.snkr_app.R
+import kotlinx.coroutines.delay
 
 @Composable
 fun WelcomeView(
@@ -29,8 +33,6 @@ fun WelcomeView(
     onNavigateRegister: () -> Unit, // 👈 nuevo callback para ir al registro
     vm: WelcomeViewModel = viewModel()
 ) {
-    val context = LocalContext.current
-    val repository = LoginRepository()
 
     val titulo = vm.titulo.collectAsState().value
 
