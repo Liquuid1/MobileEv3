@@ -33,6 +33,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
+import com.example.snkr_app.navigation.Route
 import com.example.snkr_app.viewmodels.WelcomeViewModel
 import com.example.snkr_app.R.drawable.zap
 import com.example.snkr_app.data.models.Zapatilla
@@ -79,7 +80,9 @@ fun HomeView(
 
         MiniGallerySection(
             products = productosDestacados,
-            onVerMas = { /* manejar ver mas (por ahora noop o snackbar) */ }
+            onVerMas = { zapatilla ->
+                navController.navigate(Route.ProductosDetail.build(id = zapatilla.id))
+            }
         )
 
         Spacer(modifier = Modifier.height(20.dp))
@@ -383,7 +386,7 @@ private fun UploadTeaserSection(onUploadClick: () -> Unit) {
                 Spacer(modifier = Modifier.height(6.dp))
                 Text("Ayuda a la comunidad mostrando tus zapatillas.", style = MaterialTheme.typography.bodySmall)
             }
-
+	
             Button(onClick = onUploadClick) {
                 Text("Cargar zapatilla")
             }
