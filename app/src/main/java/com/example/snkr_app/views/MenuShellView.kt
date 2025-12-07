@@ -3,6 +3,7 @@ package com.example.snkr_app.views
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Menu
+import androidx.compose.material.icons.filled.ShoppingCart
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
@@ -13,6 +14,7 @@ import com.example.snkr_app.navigation.Route
 import kotlinx.coroutines.launch
 import androidx.navigation.NavType
 import androidx.navigation.navArgument
+import com.example.snkr_app.data.repositories.CartRepository
 import com.example.snkr_app.data.repositories.ZapatillaRepository
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -23,6 +25,9 @@ fun MenuShellView(
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
     val scope = rememberCoroutineScope()
     val innerNavController = rememberNavController()
+
+    // Estado para controlar la visibilidad del diálogo de confirmación
+    var showDialog by remember { mutableStateOf(false) }
 
     ModalNavigationDrawer(
         drawerState = drawerState,
@@ -91,6 +96,20 @@ fun MenuShellView(
                     }
                 )
 
+                // 👇 Nuevo botón de Mi Carrito
+                NavigationDrawerItem(
+                    label = { Text("Mi Carrito") },
+                    icon = { Icon(Icons.Default.ShoppingCart, contentDescription = "Mi Carrito") },
+                    selected = currentInnerRoute(innerNavController) == Route.Cart.route,
+                    onClick = {
+                        innerNavController.navigate(Route.Cart.route) {
+                            popUpTo(Route.Home.route) { inclusive = false }
+                            launchSingleTop = true
+                        }
+                        scope.launch { drawerState.close() }
+                    }
+                )
+
                 // 👇 Nuevo botón de cerrar sesión
                 NavigationDrawerItem(
                     label = { Text("Cerrar sesión") },
@@ -150,12 +169,45 @@ fun MenuShellView(
                     val id = backStackEntry.arguments?.getString("id")
                     val zapatilla = ZapatillaRepository.getZapatillas().collectAsState().value.find { it.id == id }
                     if (zapatilla != null) {
-                        VistaDetalleProducto(zapatilla = zapatilla, onAddToCart = { /* TODO */ })
+                        VistaDetalleProducto(
+                            zapatilla = zapatilla,
+                            onAddToCart = {
+                                CartRepository.addToCart(zapatilla)
+                                showDialog = true
+                            }
+                        )
                     }
                 }
                 composable(Route.AdminPanel.route) { AdminPanelView(navController = innerNavController) }
+                composable(Route.Cart.route) { CartView() } // <-- AÑADIDO: Ruta para la vista del carrito
             }
         }
+    }
+
+    // Diálogo de confirmación mejorado
+    if (showDialog) {
+        AlertDialog(
+            onDismissRequest = { showDialog = false },
+            title = { Text(text = "Producto Agregado") },
+            text = { Text("El producto se ha añadido correctamente al carrito.") },
+            confirmButton = {
+                Button(
+                    onClick = {
+                        showDialog = false
+                        innerNavController.navigate(Route.Cart.route) // Navegar al carrito
+                    }
+                ) {
+                    Text("Finalizar Compra")
+                }
+            },
+            dismissButton = {
+                Button(
+                    onClick = { showDialog = false }
+                ) {
+                    Text("Continuar comprando")
+                }
+            }
+        )
     }
 }
 
